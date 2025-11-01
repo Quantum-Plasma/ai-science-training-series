@@ -25,7 +25,7 @@ conda activate
 
 export DISABLE_PYMODULE_LOG=1
 
-export CPU_AFFINITY="verbose,list:0,1:8,9:16,17:24,25"
+export CPU_AFFINITY="verbose,list:0,1,2:8,9,10:16,17,18:24,25,26"
 
 #mpiexec -n ${NRANKS} -ppn ${NRANKS_PER_NODE} -l --line-buffer --cpu-bind ${CPU_AFFINITY} python pytorch_2p8_ddp_prof.py
 

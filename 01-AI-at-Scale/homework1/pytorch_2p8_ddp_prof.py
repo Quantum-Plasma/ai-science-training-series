@@ -50,7 +50,7 @@ hidden_dim = 512
 
 
 src = torch.rand((2048, 20, hidden_dim))
-tgt = torch.rand((2048, 20, hidden_dim))
+tgt = torch.rand((2048, 100, hidden_dim))
 dataset = torch.utils.data.TensorDataset(src, tgt)
 # DDP: use DistributedSampler to partition the training data
 sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=True, num_replicas=SIZE, rank=RANK, seed=0)
