@@ -6,15 +6,15 @@ tstamp() {
 }
 
 NNODES=`wc -l < $PBS_NODEFILE`
-NRANKS_PER_NODE=2
+NRANKS_PER_NODE=1
 
 let NRANKS=${NNODES}*${NRANKS_PER_NODE}
 
-N=4
-PPN=4
+#N=4
+#PPN=4
 EPOCHS=10
 
-NODES=1
+NODES=2
 
 TRACE_DIR_ROOT=./traces/pytorch_2p8
 TRACE_DIR=${TRACE_DIR_ROOT}/cuda_pt_2p8_E${EPOCHS}_N${NODES}_R${PPN}_$(tstamp)
@@ -27,7 +27,8 @@ export DISABLE_PYMODULE_LOG=1
 
 export CPU_AFFINITY="verbose,list:0,1:8,9:16,17:24,25"
 
-#mpiexec -n ${NRANKS} -ppn ${NRANKS_PER_NODE} -l --line-buffer --cpu-bind ${CPU_AFFINITY} python pytorch_2p8_ddp_prof.py
+mpiexec -n ${NRANKS} -ppn ${NRANKS_PER_NODE} -l --line-buffer --cpu-bind ${CPU_AFFINITY} python pytorch_2p8_ddp_prof.py \
+	--epochs ${EPOCHS} --trace-dir ${TRACE_DIR}
 
-mpiexec -n ${N} -ppn ${PPN} -l --line-buffer --cpu-bind ${CPU_AFFINITY} python pytorch_2p8_ddp_prof.py \
-    --epochs ${EPOCHS} --trace-dir ${TRACE_DIR}
+#mpiexec -n ${N} -ppn ${PPN} -l --line-buffer --cpu-bind ${CPU_AFFINITY} python pytorch_2p8_ddp_prof.py \
+#    --epochs ${EPOCHS} --trace-dir ${TRACE_DIR}

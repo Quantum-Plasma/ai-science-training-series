@@ -4,6 +4,8 @@ import argparse
 import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+import h5py
+
 from torch.profiler import profile, record_function, ProfilerActivity
 from datetime import datetime
 
@@ -15,7 +17,7 @@ def parse_args():
         default=10,
         help="Number of epochs to run.",
     )
-    parser.add_argument("--batch-size", type=int, default=32, help="batch size")
+    parser.add_argument("--batch_size", type=int, default=32, help="batch size")
     parser.add_argument("--trace-dir", type=str, default="./traces/pytorch_2p8/")
     args = parser.parse_args()
     return args
@@ -43,20 +45,55 @@ torch.distributed.init_process_group(backend='nccl', init_method='env://', rank=
 # DDP: pin GPU to local rank.
 torch.cuda.set_device(int(LOCAL_RANK))
 device = torch.device('cuda')
-
-#Set the input file
 torch.manual_seed(0)
-hidden_dim = 512
 
+src = torch.rand((2048, 20, 512))
+tgt = torch.rand((2048, 100, 512))
 
-src = torch.rand((2048, 20, hidden_dim))
-tgt = torch.rand((2048, 20, hidden_dim))
-dataset = torch.utils.data.TensorDataset(src, tgt)
+if RANK == 0:
+# Create an HDF5 file and save the tensors
+    with h5py.File("tensor_dataset.h5", "w") as hdf5_file:
+        # Save the `src` tensor
+        hdf5_file.create_dataset("src", data=src.numpy())
+        # Save the `tgt` tensor
+        hdf5_file.create_dataset("tgt", data=tgt.numpy())
+
+    print("HDF5 dataset created successfully!")
+
+torch.distributed.barrier(device_ids=[torch.cuda.current_device()])
+
+# Custom Dataset to load data from HDF5
+class HDF5TensorDataset(torch.utils.data.Dataset):
+    def __init__(self, hdf5_file_path):
+        # Open the HDF5 file
+        self.hdf5_file_path = hdf5_file_path ## Prevents OS error file not found
+        self.hdf5_file = h5py.File(self.hdf5_file_path, "r")
+        self.src = self.hdf5_file["src"]
+        self.tgt = self.hdf5_file["tgt"]
+
+    def __len__(self):
+        # Return the number of samples
+        return len(self.src)
+
+    def __getitem__(self, idx):
+        # Get the src and tgt tensors for the given index
+        src_tensor = torch.tensor(self.src[idx], dtype=torch.float32)
+        tgt_tensor = torch.tensor(self.tgt[idx], dtype=torch.float32)
+        return src_tensor, tgt_tensor
+
+    def close(self):
+        # Close the HDF5 file
+        self.hdf5_file.close()
+# Load the dataset
+dataset = HDF5TensorDataset("tensor_dataset.h5")
+
+#dataset = torch.utils.data.TensorDataset(src, tgt)
 # DDP: use DistributedSampler to partition the training data
 sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=True, num_replicas=SIZE, rank=RANK, seed=0)
-loader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=args.batch_size)
+loader = torch.utils.data.DataLoader(dataset, sampler=sampler, 
+                                     batch_size=args.batch_size)
 
-model = torch.nn.Transformer(d_model=hidden_dim,batch_first=True)
+model = torch.nn.Transformer(batch_first=True)
 # DDP: scale learning rate by the number of GPUs.
 optimizer = torch.optim.Adam(model.parameters(), lr=(0.001*SIZE))
 criterion = torch.nn.CrossEntropyLoss()
@@ -100,8 +137,8 @@ if RANK == 0:
 prof_timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
 print(prof_timestamp)
 os.makedirs(args.trace_dir, exist_ok=True)
-prof.export_chrome_trace(f"{args.trace_dir}/cuda_pt_2p8-{RANK}-of-{SIZE}.json")
-output_path = f"{args.trace_dir}/cuda_pt_2p8_self_cuda_time_total-{RANK}-of-{SIZE}.txt"
+prof.export_chrome_trace(f"{args.trace_dir}/cuda_pt_2p8_h5-{RANK}-of-{SIZE}.json")
+output_path = f"{args.trace_dir}/cuda_pt_2p8_h5-self_cuda_time_total-{RANK}-of-{SIZE}.txt"
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 with open(output_path, "w") as f:
