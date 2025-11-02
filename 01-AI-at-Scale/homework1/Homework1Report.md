@@ -27,7 +27,7 @@ The result shows when the dimension grows larger, the running time is bottle nec
 
 ## Collective communication between nodes
 
-This section compares the configuration with 2 ranks run on a single node and 2 ranks run on separate nodes. In both cases teh src=torch.rand((2048,20,512) and tgt=src=torch.rand((2048,20,512). In single node case, the running time is 11.42s and for 2 nodes case, the running time is 37.40s. The 2 nodes case runs almost 4 times longer 
+This section compares the configuration with 2 ranks run on a single node and 2 ranks run on separate nodes. In both cases teh src=torch.rand((2048,20,512) and tgt=torch.rand((2048,20,512). In single node case, the running time is 11.42s and for 2 nodes case, the running time is 37.40s. The 2 nodes case runs almost 4 times longer 
 
   <img src="./Assets/N1R2.jpg" title="Tracing File for 1 Nodes Case"/>
   <p align="center"><em>Figure 1: Tracing Profile for 1 Node Case</em></p>
@@ -45,10 +45,17 @@ In 2 nodes case, significant amount of time is spent on the communication betwee
 
 ## Large Dimension Bottle Neck
 
-When the size of the data is large, namely when the sequence size is equal or more than 100. The time grows significantly. It turns out the CPU processing becomes the main bottle neck of The following cases are running in single nodes with 2 ranks.
+When the size of the data is large, namely when the sequence size is equal or more than 100. The time grows significantly as shown in Figure 4 and Figure 4. When running under single node with 2 ranks, src=torch.rand((2048,20,512), and tgt=torch.rand((2048,100,512), it takes 118.50s to run the training. The process cudaOccupancyMaxActiveBlocksPerMultiprocessor, dataloader, tensor computing, and sychronization takes much longer time than small scale cases. 
+  <img src="./Assets/LargeN1R2_0.jpg" title="Tracing File for 1 Nodes Case"/>
+  <p align="center"><em>Figure 3: Tracing Profile for the 1st Rank</em></p>
+<br>
+<br>
+<figure>
+  <img src="./Assets/LargeN1R2_1.jpg" title="Tracing File for 2 Nodes Case"/>
+  <p align="center"><em>Figure 4:Tracing Profile for the 2nd Rank</em></p>
+</figure>
 
-
-In addition, the problem could be mitigated by adding the ranks up to 4. 
+To mitigate the problem one could either increasing the number of ranks or increasing the number of CPU cores assign to each rank. Both method could reduce the running time to around 67s-68s. 
 
 ## Effect of Datatypes
 
