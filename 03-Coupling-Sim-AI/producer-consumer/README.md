@@ -174,15 +174,15 @@ Please note:
 | Parsl + file system | 1   | 1.25   | 16.38 / 0.091   | 16.46 / 0.444   |
 | DragonHPC + DDict | 1   | 1.25   | 11.87 / 0.104   | 40.89 / 1.367   |
 | Parsl + futures |2   | 1.25  | 14.39 / NA | 78.65 / NA |
-| Parsl + file system | 2 | 1.25 | 15.66 / 0.115 | 118.64 / 2.197|
+| Parsl + file system | 2 | 1.25 | 11.29 / 0.107 | 23.64 / 2.197|
 | DragonHPC + DDict   | 2   | 1.25   | 6.82 / 0.152  | 34.64 / 2.021  |
 
 
 **Observations**
 
-Write a short paragraph on your observations based on the results collected in the table above. Which solution is best, depending on the size of data being produced and transferred and the number of nodes used? Does this match your expectations? 
-The parameters of this run are the number os simulation is 64, and the training data size is 512. 
-In the case of 2 nodes, there are 8 CNN training runs. In the case of single node, there are 4 CNN runs. 
+The parameters of this run are the number os simulation is 64, and the training data size is 512.
+In short, the DragonHPC+DDict will have the best performance as node increases. Although with 2 nodes, the simulation time of DragonHPC+DDict falls short to Parsl+file system. It is noticeable that the I/O time of Parsl+file system has increased by 5 times, while the time of DragonHPC+DDict does not change too much. We could expect as the number of nodes increase, the Parsl + file system's I/O time will be too large. In addition, the training time of Parsl+file system increased while Dragon HPC's training time decreases. This shows Parsl+file system will become less efficient as the number of the nodes increases. As for the Parsl+future system, it is expected as the number of Parsl + future's time increases almost 2 times. It is expected that transferring large size of training data bettween nodes becomes the bottle neck. 
+ 
 
 
 
