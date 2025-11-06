@@ -173,7 +173,9 @@ Please note:
 | Parsl + futures | 1   | 0.62   | 14.38 / NA   | 26.59 / NA   |
 | Parsl + file system | 1   | 0.62   | 11.22 / 0.094   | 14.90 / 0.422   |
 | DragonHPC + DDict | 1   | 0.62   | 7.01 / 0.233   | 17.92 / 1.194   |
-| ...   | ...   | ...   | ... / ...  | ... / ...  |
+| Parsl + futures |2   | 1.25  | 14.39 / NA | 78.65/NA |
+| Parsl + file system | 2 | 1.25 | 15.66 /0.115 | 118.64/2.197|
+| DragonHPC + DDict   | 2   | 1.25   | 6.82 / 0.152  | 34.64 / 2.021  |
 
 
 **Observations**
