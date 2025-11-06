@@ -170,14 +170,19 @@ Please note:
 
 | Implementation   | Number of Nodes | Training Data Size (GB) | Simulation Run / IO Time (sec) | Training Run / IO Time (sec) |
 |------------------|-----------------|--------------------|-----------------|---------------|
-| Parsl + futures | 1   | 0.62   | 14.38 / NA   | 26.59 / NA   |
-| Parsl + file system | 1   | 0.62   | 11.22 / 0.094   | 14.90 / 0.422   |
-| DragonHPC + DDict | 1   | 0.62   | 7.01 / 0.233   | 17.92 / 1.194   |
-| Parsl + futures |2   | 1.25  | 14.39 / NA | 78.65/NA |
-| Parsl + file system | 2 | 1.25 | 15.66 /0.115 | 118.64/2.197|
+| Parsl + futures | 1   | 1.25   | 19.54 / NA   | 48.64 / NA   |
+| Parsl + file system | 1   | 1.25   | 16.38 / 0.091   | 16.46 / 0.444   |
+| DragonHPC + DDict | 1   | 1.25   | 11.87 / 0.104   | 40.89 / 1.367   |
+| Parsl + futures |2   | 1.25  | 14.39 / NA | 78.65 / NA |
+| Parsl + file system | 2 | 1.25 | 15.66 / 0.115 | 118.64 / 2.197|
 | DragonHPC + DDict   | 2   | 1.25   | 6.82 / 0.152  | 34.64 / 2.021  |
 
 
 **Observations**
 
 Write a short paragraph on your observations based on the results collected in the table above. Which solution is best, depending on the size of data being produced and transferred and the number of nodes used? Does this match your expectations? 
+The parameters of this run are the number os simulation is 64, and the training data size is 512. 
+In the case of 2 nodes, there are 8 CNN training runs. In the case of single node, there are 4 CNN runs. 
+
+
+
