@@ -26,8 +26,8 @@ np.random.seed(seed)
 random.seed(seed)
 
 # Define parameters for the workflow
-initial_training_count = 4  # Number of trianing samples to collect for first model training
-max_training_count = 44  # Maximum number of training samples to collect for training
+initial_training_count = 16  # Number of trianing samples to collect for first model training
+max_training_count = 80  # Maximum number of training samples to collect for training
 batch_size = 8  # Number of molecules to simulate in each iteration of active learning loop
 if initial_training_count >= max_training_count:
     print("Must do at least 1 active trianing iteration.")
